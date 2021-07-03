@@ -1,5 +1,6 @@
 from pelican import signals
 
+
 def pre_taxonomy(article_generator):
     """
     Modify the tags of the article
