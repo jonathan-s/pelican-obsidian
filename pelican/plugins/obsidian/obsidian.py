@@ -28,6 +28,14 @@ link_re = re.compile(link)
 """
 
 
+def get_file_and_linkname(match):
+    group = match.groupdict()
+    filename = group['filename'].strip()
+    linkname = group['linkname'] if group['linkname'] else filename
+    linkname = linkname.strip()
+    return filename, linkname
+
+
 class ObsidianMarkdownReader(MarkdownReader):
     """
     Change the format of various links to the accepted case of pelican.
@@ -37,12 +45,8 @@ class ObsidianMarkdownReader(MarkdownReader):
         super().__init__(*args, **kwargs)
 
     def replace_obsidian_links(self, text):
-        def replacement(match):
-            nonlocal self
-            group = match.groupdict()
-            filename = group['filename'].strip()
-            linkname = group['linkname'] if group['linkname'] else filename
-            linkname = linkname.strip()
+        def link_replacement(match):
+            filename, linkname = get_file_and_linkname(match)
             path = ARTICLES.get(filename)
             if path:
                 link_structure = '[{linkname}]({{filename}}/{path}/{filename}.md)'.format(
@@ -52,7 +56,20 @@ class ObsidianMarkdownReader(MarkdownReader):
                 link_structure = '{linkname}'.format(linkname=linkname)
             return link_structure
 
-        text = link_re.sub(replacement, text)
+        def file_replacement(match):
+            filename, linkname = get_file_and_linkname(match)
+            path = FILES.get(filename)
+            if path:
+                link_structure = '![{linkname}]({{static}}/{path}/{filename})'.format(
+                    linkname=linkname, path=path, filename=filename
+                )
+            else:
+                # don't show it at all since it will be broken
+                link_structure = ''
+            return link_structure
+
+        text = file_re.sub(file_replacement, text)
+        text = link_re.sub(link_replacement, text)
         return text
 
     def read(self, source_path):
@@ -88,8 +105,14 @@ def populate_files_and_articles(article_generator):
             full_path = str(full_path).replace(str(base_path) + '/', '')
             ARTICLES[filename] = full_path
 
+    globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
+    files = chain(*globs)
+
     if not FILES:
-        pass
+        for _file in files:
+            full_path, filename_w_ext = os.path.split(_file)
+            full_path = str(full_path).replace(str(base_path) + '/', '')
+            FILES[filename_w_ext] = full_path
 
 
 def modify_reader(article_generator):
