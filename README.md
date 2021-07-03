@@ -9,6 +9,8 @@ Obsidian is a pelican plugin that allows you to use the syntax used within Obsid
 
 Phrased differently, if you don't like that `#` is included in the name of the tag when you name it `#my-tag` and you think that internal pelican links are difficult to remember and would like to use `[[ my link ]]` as an internal link instead this plugin would be for you.
 
+If the article doesn't exist it will return text only. That way, there is a possibility of clearly separating posts that should belong on the blog and linked as such vs posts that should only belong inside Obsidian.
+
 
 Installation
 ------------
@@ -38,9 +40,11 @@ To specify the location of an attachment the following syntax is used `![[ filen
 
 Future features
 ---------------
-
 - Embed files or sections as described [here](https://help.obsidian.md/How+to/Format+your+notes)
 - Task list?
+- Support .rst?
+- don't generate links for drafts
+- Apply the same linking for pages.
 
 
 <!-- Contributing
@@ -56,4 +60,4 @@ To start contributing to this plugin, review the [Contributing to Pelican][] doc
 License
 -------
 
-This project is licensed under the AGPL 3.0 license.
+This project is licensed under the MIT license.
