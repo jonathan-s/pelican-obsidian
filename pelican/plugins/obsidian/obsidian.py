@@ -43,10 +43,13 @@ class ObsidianMarkdownReader(MarkdownReader):
             filename = group['filename'].strip()
             linkname = group['linkname'] if group['linkname'] else filename
             linkname = linkname.strip()
-            path = ARTICLES[filename]
-            link_structure = '[{linkname}]({{filename}}/{path}/{filename}.md)'.format(
-                linkname=linkname, path=path, filename=filename
-            )
+            path = ARTICLES.get(filename)
+            if path:
+                link_structure = '[{linkname}]({{filename}}/{path}/{filename}.md)'.format(
+                    linkname=linkname, path=path, filename=filename
+                )
+            else:
+                link_structure = '{linkname}'.format(linkname=linkname)
             return link_structure
 
         text = link_re.sub(replacement, text)
@@ -98,7 +101,7 @@ def modify_metadata(article_generator, metadata):
     """
     Modify the tags so we can define the tags as we are used to in obsidian.
     """
-    for tag in metadata['tags']:
+    for tag in metadata.get('tags', []):
         if '#' in tag.name:
             tag.name = tag.name.replace('#', '')
 
