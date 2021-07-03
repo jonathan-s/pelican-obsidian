@@ -15,11 +15,14 @@ def modify_article_content(article_generator, content):
     pass
 
 
-def modify_metadata(article_generator, context):
+def modify_metadata(article_generator, metadata):
     """
-    Modify the metadata
+    Modify the tags so we can define the tags as we are used to in obsidian.
     """
-    pass
+
+    for tag in metadata['tags']:
+        if '#' in tag.name:
+            tag.name = tag.name.replace('#', '')
 
 
 def register():
