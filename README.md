@@ -19,6 +19,10 @@ This plugin can be installed via:
 
     # not yet on pypi, but when it is you can install it with.
     pip install pelican-obsidian
+    
+    # meanwhile you can install using this repo.
+    pip install git+git://github.com/jonathan-s/pelican-obsidian@main#egg=pelican-obsidian
+
 
 Usage
 -----
