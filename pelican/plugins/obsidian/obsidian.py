@@ -9,8 +9,8 @@ from pelican.utils import pelican_open
 
 from markdown import Markdown
 
-ARTICLES = {}
-FILES = {}
+ARTICLE_PATHS = {}
+FILE_PATHS = {}
 
 link = r'\[\[\s*(?P<filename>[\w+\s.]+)(\|\s*(?P<linkname>[\w\s]+))?\]\]'
 file_re = re.compile(r'!' + link)
@@ -47,7 +47,7 @@ class ObsidianMarkdownReader(MarkdownReader):
     def replace_obsidian_links(self, text):
         def link_replacement(match):
             filename, linkname = get_file_and_linkname(match)
-            path = ARTICLES.get(filename)
+            path = ARTICLE_PATHS.get(filename)
             if path:
                 link_structure = '[{linkname}]({{filename}}/{path}/{filename}.md)'.format(
                     linkname=linkname, path=path, filename=filename
@@ -58,7 +58,7 @@ class ObsidianMarkdownReader(MarkdownReader):
 
         def file_replacement(match):
             filename, linkname = get_file_and_linkname(match)
-            path = FILES.get(filename)
+            path = FILE_PATHS.get(filename)
             if path:
                 link_structure = '![{linkname}]({{static}}/{path}/{filename})'.format(
                     linkname=linkname, path=path, filename=filename
@@ -93,24 +93,24 @@ class ObsidianMarkdownReader(MarkdownReader):
 
 
 def populate_files_and_articles(article_generator):
-    global ARTICLES
-    global FILES
+    global ARTICLE_PATHS
+    global FILE_PATHS
 
     base_path = Path(article_generator.path)
     articles = base_path.glob('**/*.md')
     for article in articles:
         full_path, filename_w_ext = os.path.split(article)
         filename, ext = os.path.splitext(filename_w_ext)
-        full_path = str(full_path).replace(str(base_path) + '/', '')
-        ARTICLES[filename] = full_path
+        path = str(full_path).replace(str(base_path) + '/', '')
+        ARTICLE_PATHS[filename] = path
 
     globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
     files = chain(*globs)
 
     for _file in files:
         full_path, filename_w_ext = os.path.split(_file)
-        full_path = str(full_path).replace(str(base_path) + '/', '')
-        FILES[filename_w_ext] = full_path
+        path = str(full_path).replace(str(base_path) + '/', '')
+        FILE_PATHS[filename_w_ext] = path
 
 
 def modify_reader(article_generator):
