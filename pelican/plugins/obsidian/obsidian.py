@@ -97,22 +97,20 @@ def populate_files_and_articles(article_generator):
     global FILES
 
     base_path = Path(article_generator.path)
-    if not ARTICLES:
-        articles = base_path.glob('**/*.md')
-        for article in articles:
-            full_path, filename_w_ext = os.path.split(article)
-            filename, ext = os.path.splitext(filename_w_ext)
-            full_path = str(full_path).replace(str(base_path) + '/', '')
-            ARTICLES[filename] = full_path
+    articles = base_path.glob('**/*.md')
+    for article in articles:
+        full_path, filename_w_ext = os.path.split(article)
+        filename, ext = os.path.splitext(filename_w_ext)
+        full_path = str(full_path).replace(str(base_path) + '/', '')
+        ARTICLES[filename] = full_path
 
     globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
     files = chain(*globs)
 
-    if not FILES:
-        for _file in files:
-            full_path, filename_w_ext = os.path.split(_file)
-            full_path = str(full_path).replace(str(base_path) + '/', '')
-            FILES[filename_w_ext] = full_path
+    for _file in files:
+        full_path, filename_w_ext = os.path.split(_file)
+        full_path = str(full_path).replace(str(base_path) + '/', '')
+        FILES[filename_w_ext] = full_path
 
 
 def modify_reader(article_generator):
