@@ -24,9 +24,16 @@ This plugin can be installed via:
     pip install git+git://github.com/jonathan-s/pelican-obsidian@main#egg=pelican-obsidian
 
 
+Add `'obsidian'` to the `PLUGINS` list in your Pelican config:
+
+```
+PLUGINS = [
+    'obsidian',
+]
+```
+
 Usage
 -----
-Install the plugin as described in the pelican documentation.
 
 In the tags section you will be able to use `#` without that being reflected in the actual name of the tag. In other words.
 
@@ -37,9 +44,21 @@ Tags: #my-tag
 my-tag in the html output.
 ```
 
-The backlinks in Obsidian follows this format `[[ document | Actual link name ]]` The actual link name is optional.
+Links follow this format:
 
-To specify the location of an attachment the following syntax is used `![[ filename.jpg ]]`. They explain more about the syntax in the section on [how to embed files](https://help.obsidian.md/How+to/Embed+files)
+```
+[[note name]]
+[[note name | custom link text]]
+```
+
+Files are similar:
+
+```
+![[photo.jpg]]
+![[photo.jpg | custom alt text]]
+```
+
+They explain more about the syntax in the section on [how to embed files](https://help.obsidian.md/How+to/Embed+files)
 
 
 Future features
