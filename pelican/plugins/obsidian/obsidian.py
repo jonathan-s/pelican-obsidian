@@ -12,7 +12,7 @@ from markdown import Markdown
 ARTICLE_PATHS = {}
 FILE_PATHS = {}
 
-link = r'\[\[\s*(?P<filename>[\w+\s.]+)(\|\s*(?P<linkname>[\w\s]+))?\]\]'
+link = r'\[\[\s*(?P<filename>[^|\]]+)(\|\s*(?P<linkname>.+))?\]\]'
 file_re = re.compile(r'!' + link)
 link_re = re.compile(link)
 
