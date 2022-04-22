@@ -49,7 +49,7 @@ class ObsidianMarkdownReader(MarkdownReader):
             filename, linkname = get_file_and_linkname(match)
             path = ARTICLE_PATHS.get(filename)
             if path:
-                link_structure = '[{linkname}]({{filename}}/{path}/{filename}.md)'.format(
+                link_structure = '[{linkname}]({{filename}}{path}{filename}.md)'.format(
                     linkname=linkname, path=path, filename=filename
                 )
             else:
@@ -60,7 +60,7 @@ class ObsidianMarkdownReader(MarkdownReader):
             filename, linkname = get_file_and_linkname(match)
             path = FILE_PATHS.get(filename)
             if path:
-                link_structure = '![{linkname}]({{static}}/{path}/{filename})'.format(
+                link_structure = '![{linkname}]({{static}}{path}{filename})'.format(
                     linkname=linkname, path=path, filename=filename
                 )
             else:
@@ -101,7 +101,7 @@ def populate_files_and_articles(article_generator):
     for article in articles:
         full_path, filename_w_ext = os.path.split(article)
         filename, ext = os.path.splitext(filename_w_ext)
-        path = str(full_path).replace(str(base_path) + '/', '')
+        path = str(full_path).replace(str(base_path), '') + '/'
         ARTICLE_PATHS[filename] = path
 
     globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
@@ -109,7 +109,7 @@ def populate_files_and_articles(article_generator):
 
     for _file in files:
         full_path, filename_w_ext = os.path.split(_file)
-        path = str(full_path).replace(str(base_path) + '/', '')
+        path = str(full_path).replace(str(base_path), '') + '/'
         FILE_PATHS[filename_w_ext] = path
 
 
