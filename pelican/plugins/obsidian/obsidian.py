@@ -98,7 +98,7 @@ def populate_files_and_articles(article_generator):
 
     base_path = Path(article_generator.path)
     if not ARTICLES:
-        articles = chain(base_path.glob('**/*.md'), base_path.glob('**/*.md'))
+        articles = base_path.glob('**/*.md')
         for article in articles:
             full_path, filename_w_ext = os.path.split(article)
             filename, ext = os.path.splitext(filename_w_ext)
