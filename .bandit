@@ -1,0 +1,3 @@
+[bandit]
+targets: ./pelican, ./tests
+skips: B101

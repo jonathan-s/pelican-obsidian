@@ -1,0 +1,78 @@
+; Configuration for Flake8 with plugins:
+;  flake8-bugbear,
+;  flake8-commas,
+;  flake8-docstrings,
+;  flake8-print,
+;  flake8-pytest,
+;  flake8-pytest-mark
+;  flake8-import-order
+
+[flake8]
+;[M502] test definition not marked with test_type
+;[N802] function name 'setUpTestData' should be lowercase
+;[F405] xyz may be undefined, or defined from star imports
+;[T001] print found.
+;[D100] Missing docstring in public module
+;[D101] Missing docstring in public class (e.g. Models' Meta)
+;[D102] Missing docstring in public method
+;[D104] Missing docstring in public package
+;[D105] Missing docstring in magic method
+;[D107] Missing docstring in __init__
+;[E402] module level import not at top of file
+;[E203] whitespace before ':'
+;[W503] line break before binary operator (incompatibility between flake8 and black)
+;[FKA01] <function_name> call uses <X> positional arguments, use keyword arguments.
+
+; this should be not excluded in more mature version
+; [D103] Missing docstring in public function
+
+;Violation families (can be excluded or selected)
+;B - flake8-bugbear
+;C - complexity
+;D - flake8-docstrings
+;F - ?
+;N - ?
+;T - flake8-print
+;M - flake8-pytest-mark
+
+ignore =C, T003, M502, N802, F405, T001, D100, D101, D104, D105, D107, E203
+
+#select = B
+
+# Do not expect extensive documentation in tests
+extend-ignore = D100,D101,D102,D103 ./tests/*
+
+exclude =
+    .tox,
+    .git,
+    *staticfiles*,
+    locale,
+    docs,
+    tools,
+    venv,
+    *migrations*,
+    *.pyc,
+    .git,
+    __pycache__,
+    test_*.py
+;enable docstrings for tests eventually
+
+max-line-length = 130
+
+;Set the maximum allowed McCabe complexity value for a block of code.
+max-complexity = 10
+
+;Select the formatter used to display errors to the user.
+format = pylint
+
+;display source code lines that violate rules
+show_source = False
+
+;count violations by type
+statistics = False
+
+;total count of violations
+count = True
+
+;import style order for flake8-import-order plugin
+import-order-style = pep8
