@@ -35,12 +35,13 @@
 ;T - flake8-print
 ;M - flake8-pytest-mark
 
-ignore =C, T003, M502, N802, F405, T001, D100, D101, D104, D105, D107, E203
+ignore =C, T003, M502, N802, F405, T001, D100, D101, D104, D105, D107, E203, W503
 
 #select = B
 
 # Do not expect extensive documentation in tests
-extend-ignore = D100,D101,D102,D103 ./tests/*
+per-file-ignores =
+    ./tests/*:D100,D101,D102,D103
 
 exclude =
     .tox,
