@@ -26,9 +26,9 @@ title_re = re.compile(r"(?i)title: (.*)")
 # X::[[asdae]] syntax, which is used to create a link to a file
 # X:: [[dfges]] and X::[[myfsew|dfgwerf]], x::[[ddfgd]] and x::[[dfg|ersdf]]
 # are all valid.
-x_element_re = re.compile(r"(?i)X::\s*{link}".format(link=link))
-up_element_re = re.compile(r"(?i)Up::\s*{link}".format(link=link))
-down_element_re = re.compile(r"(?i)Down::\s*{link}".format(link=link))
+x_element_re = re.compile(rf"(?i)X::\s*{link}")
+up_element_re = re.compile(rf"(?i)Up::\s*{link}")
+down_element_re = re.compile(rf"(?i)Down::\s*{link}")
 """
 # Test cases for the link regex
 [[my link]]
