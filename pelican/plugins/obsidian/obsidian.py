@@ -9,28 +9,6 @@ from pelican import signals
 from pelican.readers import MarkdownReader
 from pelican.utils import pelican_open
 
-# from loguru import logger
-
-# configure logging on debug level
-# logger.remove()
-# DEFAULT_LOG_LEVEL = "INFO"
-# logger.add(
-#     os.path.join(os.getcwd(), "obsidian.log"),
-#     level=DEFAULT_LOG_LEVEL,
-#     format="{time} {level} {message}",
-#     rotation="1 MB",
-#     compression="zip",
-#     enqueue=True,
-# )
-# # add a handler to print to stdout
-# logger.add(
-#     sys.stderr,
-#     level=DEFAULT_LOG_LEVEL,
-#     format="{level} {message}",
-#     enqueue=True,
-#     colorize=True,
-# )
-
 ARTICLE_PATH = {}
 ARTICLE_TITLE = {}
 FILE_PATH = {}
