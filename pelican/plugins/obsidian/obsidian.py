@@ -148,12 +148,14 @@ class ObsidianMarkdownReader(MarkdownReader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def replace_obsidian_links(self, text):
+    @staticmethod
+    def replace_obsidian_links(text):
         text = file_re.sub(file_replacement, text)
         text = link_re.sub(link_replacement, text)
         return text
 
-    def remove_non_existing_breadcrumbs(self, text):
+    @staticmethod
+    def remove_non_existing_breadcrumbs(text):
         text = x_element_re.sub(breadcrumb_replacement, text)
         text = up_element_re.sub(breadcrumb_replacement, text)
         text = down_element_re.sub(breadcrumb_replacement, text)
