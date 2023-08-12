@@ -209,7 +209,7 @@ def populate_files_articles_titles(article_generator):
 
         # get the title of the article from the frontmatter
         # open the file and get the title
-        with open(article, "r") as f:
+        with open(article) as f:
             content = f.read()
             # find the title text. The key should be case insensitive,
             # i.e. all: Title, TITLE, title should work
