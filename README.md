@@ -67,6 +67,10 @@ Future features
 - Task list?
 - Support .rst?
 - don't generate links for drafts
+
+
+Implemented Features
+----------------- 
 - Apply the same linking for pages.
 
 
