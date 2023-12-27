@@ -151,8 +151,38 @@ class ObsidianMarkdownReader(MarkdownReader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @staticmethod
-    def replace_obsidian_links(text):
+    def replace_obsidian_links(self, text):
+        """
+        Filters all text and replaces matching links with the correct format for
+        pelican. NOTE - this parses all text.
+        Args:
+            text: Text for entire page
+        Return: text with links replaced if possible
+        """
+        def link_replacement(match):
+            filename, linkname = get_file_and_linkname(match)
+            path = ARTICLE_PATHS.get(filename)
+            if path:
+                link_structure = '[{linkname}]({{filename}}{path}{filename}.md)'.format(
+                    linkname=linkname, path=path, filename=filename
+                )
+            else:
+                link_structure = '{linkname}'.format(linkname=linkname)
+            return link_structure
+
+        def file_replacement(match):
+            filename, linkname = get_file_and_linkname(match)
+            path = FILE_PATHS.get(filename)
+            if path:
+                link_structure = '![{linkname}]({{static}}{path}{filename})'.format(
+                    linkname=linkname, path=path, filename=filename
+                )
+            else:
+                # don't show it at all since it will be broken
+                link_structure = ''
+
+            return link_structure
+
         text = file_re.sub(file_replacement, text)
         text = link_re.sub(link_replacement, text)
         return text
@@ -166,7 +196,8 @@ class ObsidianMarkdownReader(MarkdownReader):
 
     def read(self, source_path):
         """
-        Parse content and metadata of markdown files. Also changes the links to the acceptable format for pelican
+        Parse content and metadata of markdown files. Also changes the links
+        to the acceptable format for pelican
         """
         self._source_path = source_path
         self._md = Markdown(**self.settings["MARKDOWN"])
@@ -185,50 +216,34 @@ class ObsidianMarkdownReader(MarkdownReader):
         return content, metadata
 
 
-def populate_files_articles_titles(article_generator):
-    """Populate the ARTICLE_PATH, FILE_PATH and ARTICLE_TITLE.
-
-    ARTICLE_PATH: {filename: path}
-    E.g. {"my-article": "notes/"} for the article "notes/my-article.md"
-
-    FILE_PATH: {filename: path}
-    E.g. {"my-image.jpg": "images/"} for the file "images/my-image.jpg"
-
-    ARTICLE_TITLE: {filename: title}
-    E.g. {"my-article": "My Article"} for the article "notes/my-article.md"
+def populate_files_and_articles(article_generator):
     """
-    global ARTICLE_PATH
-    global FILE_PATH
-    global ARTICLE_TITLE
+    Populates the ARTICLE_PATHS and FILE_PATHS global variables. This is used to find
+    file paths and article paths after parsing the wililink articles.
+
+    ARTICLE_PATHS is a dictionary where the key is the filename and the value is the path to the article.
+    FILE_PATHS is a dictionary where the key is the file extension and the value is the path to the file
+
+    Args:
+        article_generator: built in class.
+    Returns: None - sets the ARTICLE_PATHS and FILE_PATHS global variables.
+    """
+    global ARTICLE_PATHS
+    global FILE_PATHS
 
     base_path = Path(article_generator.path)
-    articles = base_path.glob("**/*.md")
+    articles = base_path.glob('**/*.md')
+    # Get list of all markdown files
     for article in articles:
         full_path, filename_w_ext = os.path.split(article)
         filename, ext = os.path.splitext(filename_w_ext)
-        path = str(full_path).replace(str(base_path), "") + "/"
-        ARTICLE_PATH[filename] = path
-        # logger.debug(f"ARTICLE: {filename} -> {path}")
+        path = str(full_path).replace(str(base_path), '') + '/'
 
-        # get the title of the article from the frontmatter
-        # open the file and get the title
-        with open(article) as f:
-            content = f.read()
-            # find the title text. The key should be case insensitive,
-            # i.e. all: Title, TITLE, title should work
-            title = re.search(title_re, content)
+        # This work on both pages and posts/articles
+        ARTICLE_PATHS[filename] = path
 
-        if title is None:
-            title = filename
-        else:
-            title = title.group(1).strip()
-
-        # logger.debug(f"Found internal link to article: {filename}, title: {title}")
-        ARTICLE_TITLE[filename] = title
-
-    globs = [
-        base_path.glob(f"**/*.{ext}") for ext in ["png", "jpg", "svg", "apkg", "gif"]
-    ]
+    # Get list of all other relavant files
+    globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
     files = chain(*globs)
     for _file in files:
         full_path, filename_w_ext = os.path.split(_file)
@@ -236,16 +251,9 @@ def populate_files_articles_titles(article_generator):
         FILE_PATH[filename_w_ext] = path
 
 
-def modify_reader(article_generator):
-    """Modify the reader to use the ObsidianMarkdownReader.
-
-    Before generating the articles, run the content through the ObsidianMarkdownReader.
-    for replacing the obsidian links to the desired format.
-    """
-    populate_files_articles_titles(article_generator)
-    article_generator.readers.readers["md"] = ObsidianMarkdownReader(
-        article_generator.settings
-    )
+def modify_generator(generator):
+    populate_files_and_articles(generator)
+    generator.readers.readers['md'] = ObsidianMarkdownReader(generator.settings)
 
 
 def modify_metadata(article_generator, metadata: dict) -> None:
