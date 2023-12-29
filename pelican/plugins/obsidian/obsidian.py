@@ -1,3 +1,7 @@
+"""Plugin for Pelican to support Obsidian links, images, breadcrumbs and correcting tags.
+
+
+"""
 import os
 import re
 from itertools import chain
