@@ -1,3 +1,0 @@
-pelican
-markdown
-pre-commit
