@@ -1,0 +1,1 @@
+[external](https://example.com)

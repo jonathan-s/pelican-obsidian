@@ -1,13 +1,12 @@
-from pathlib import Path
-
-from itertools import chain
 import os
 import re
+from itertools import chain
+from pathlib import Path
+
+from markdown import Markdown
 from pelican import signals
 from pelican.readers import MarkdownReader
 from pelican.utils import pelican_open
-
-from markdown import Markdown
 
 ARTICLE_PATHS = {}
 FILE_PATHS = {}
@@ -47,7 +46,7 @@ class ObsidianMarkdownReader(MarkdownReader):
     def replace_obsidian_links(self, text):
         """
         Filters all text and replaces matching links with the correct format for pelican. NOTE - this parses all text.
-        Args: 
+        Args:
             text: Text for entire page
         Return: text with links replaced if possible
         """
@@ -79,9 +78,16 @@ class ObsidianMarkdownReader(MarkdownReader):
         text = link_re.sub(link_replacement, text)
         return text
 
+    def _reformat_tags(self):
+        tags = self._md.Meta.get("tags", [])
+        if len(tags) >= 1:
+            # reformat tags to the expected pelican format
+            self._md.Meta["tags"] = ["".join(tags).replace('- ', ',')[1:]]
+
     def read(self, source_path):
         """
-        Parse content and metadata of markdown files. Also changes the links to the acceptable format for pelican
+        Parse content and metadata of markdown files.
+        Also changes the links to the acceptable format for pelican
         """
 
         self._source_path = source_path
@@ -92,6 +98,7 @@ class ObsidianMarkdownReader(MarkdownReader):
             content = self._md.convert(text)
 
         if hasattr(self._md, 'Meta'):
+            self._reformat_tags()
             metadata = self._parse_metadata(self._md.Meta)
         else:
             metadata = {}
@@ -124,8 +131,7 @@ def populate_files_and_articles(article_generator):
         # This work on both pages and posts/articles
         ARTICLE_PATHS[filename] = path
 
-
-    # Get list of all other relavant files 
+    # Get list of all other relavant files
     globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
     files = chain(*globs)
     for _file in files:
@@ -137,6 +143,7 @@ def populate_files_and_articles(article_generator):
 def modify_generator(generator):
     populate_files_and_articles(generator)
     generator.readers.readers['md'] = ObsidianMarkdownReader(generator.settings)
+
 
 def modify_metadata(article_generator, metadata):
     """
@@ -153,4 +160,3 @@ def register():
 
     signals.page_generator_context.connect(modify_metadata)
     signals.page_generator_init.connect(modify_generator)
-
