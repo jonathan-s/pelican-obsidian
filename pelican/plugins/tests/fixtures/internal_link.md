@@ -1,0 +1,5 @@
+---
+title: internal link
+---
+
+[[tags]]
