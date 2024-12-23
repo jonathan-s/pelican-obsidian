@@ -68,5 +68,12 @@ def test_external_link(obsidian):
     assert '<a href="https://example.com">external</a>'
 
 
+@pytest.mark.parametrize('path', ["colon_in_prop"])
+def test_colon_in_prop(obsidian):
+    """Using a colon in prop should not mess with string formatting"""
+    content, meta = obsidian
+    assert meta["title"] == 'Hello: There'
+
+
 def test_with_generator():
     pass
