@@ -5,7 +5,7 @@ from pathlib import Path
 
 from markdown import Markdown
 from pelican import signals
-from pelican.readers import MarkdownReader
+from pelican.plugins.yaml_metadata.yaml_metadata import YAMLMetadataReader
 from pelican.utils import pelican_open
 
 ARTICLE_PATHS = {}
@@ -35,7 +35,7 @@ def get_file_and_linkname(match):
     return filename, linkname
 
 
-class ObsidianMarkdownReader(MarkdownReader):
+class ObsidianMarkdownReader(YAMLMetadataReader):
     """
     Change the format of various links to the accepted case of pelican.
     """
@@ -78,47 +78,14 @@ class ObsidianMarkdownReader(MarkdownReader):
         text = link_re.sub(link_replacement, text)
         return text
 
-    def _reformat_tags(self):
-        tags = self._md.Meta.get("tags", [])
-        if len(tags) >= 1:
-            # reformat tags to the expected pelican format
-            self._md.Meta["tags"] = [
-                "".join([tag for tag in tags if tag and tag.strip()]).replace('- ', ',')
-            ]
-
-    def process_metadata(self, name, value):
-        value = super().process_metadata(name, value)
-
-        if not hasattr(value, '__len__') or not len(value) >= 2:
-            return value
-
-        conditions = [
-            isinstance(value, str),
-            value[0] == '"',
-            value[-1] == '"',
-        ]
-        if all(conditions):
-            return value[1:-1]
-        return value
-
     def read(self, source_path):
         """
         Parse content and metadata of markdown files.
         Also changes the links to the acceptable format for pelican
         """
-        self._source_path = source_path
-        self._md = Markdown(**self.settings['MARKDOWN'])
 
-        with pelican_open(source_path) as text:
-            text = self.replace_obsidian_links(text)
-            content = self._md.convert(text)
-
-        if hasattr(self._md, 'Meta'):
-            self._reformat_tags()
-            metadata = self._parse_metadata(self._md.Meta)
-        else:
-            metadata = {}
-
+        content, metadata = super().read(source_path)
+        content = self.replace_obsidian_links(content)
         return content, metadata
 
 
