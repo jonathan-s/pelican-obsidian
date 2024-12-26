@@ -31,15 +31,22 @@ def test_tags_works_correctly(obsidian):
 
     assert 'Some text here' in content
     assert len(tags) == 3
+    assert 'python' == tags[0].name
+    assert 'code-formatter' == tags[1].name
+    assert 'black' == tags[2].name
 
 
 @pytest.mark.parametrize('path', ["tags_comma"])
 def test_tags_works_pelican_way(obsidian):
     """Test normal tags"""
     content, meta = obsidian
+    tags = meta["tags"]
 
     assert 'Some text here' in content
     assert len(meta["tags"]) == 3
+    assert 'python' == tags[0].name
+    assert 'code-formatter' == tags[1].name
+    assert 'black' == tags[2].name
 
 
 @pytest.mark.parametrize('path', ["other_list_type"])

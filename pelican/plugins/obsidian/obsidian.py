@@ -82,7 +82,9 @@ class ObsidianMarkdownReader(MarkdownReader):
         tags = self._md.Meta.get("tags", [])
         if len(tags) >= 1:
             # reformat tags to the expected pelican format
-            self._md.Meta["tags"] = ["".join(tags).replace('- ', ',')[1:]]
+            self._md.Meta["tags"] = [
+                "".join([tag for tag in tags if tag and tag.strip()]).replace('- ', ',')
+            ]
 
     def process_metadata(self, name, value):
         value = super().process_metadata(name, value)
@@ -104,7 +106,6 @@ class ObsidianMarkdownReader(MarkdownReader):
         Parse content and metadata of markdown files.
         Also changes the links to the acceptable format for pelican
         """
-
         self._source_path = source_path
         self._md = Markdown(**self.settings['MARKDOWN'])
 
