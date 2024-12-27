@@ -55,7 +55,7 @@ def test_other_list_property(obsidian):
     content, meta = obsidian
 
     assert 'Some text here' in content
-    assert len(meta["other"]) == 4
+    assert len(meta["other"]) == 3
 
 
 @pytest.mark.parametrize('path', ["internal_link"])
