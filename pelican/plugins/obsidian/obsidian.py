@@ -3,10 +3,9 @@ import re
 from itertools import chain
 from pathlib import Path
 
-from markdown import Markdown
 from pelican import signals
 from pelican.plugins.yaml_metadata.yaml_metadata import YAMLMetadataReader
-from pelican.utils import pelican_open
+from pelican.urlwrappers import Tag
 
 ARTICLE_PATHS = {}
 FILE_PATHS = {}
@@ -77,6 +76,22 @@ class ObsidianMarkdownReader(YAMLMetadataReader):
         text = file_re.sub(file_replacement, text)
         text = link_re.sub(link_replacement, text)
         return text
+
+    def _load_yaml_metadata(self, text, source_path):
+        metadata = super()._load_yaml_metadata(text, source_path)
+        tags = metadata.get("tags", [])
+        mod_tags = []
+        for tag in tags:
+            if ',' in tag.name:
+                str_tags = tag.name.split(",")
+                for str_tag in str_tags:
+                    url_tag = Tag(str_tag, settings=self.settings)
+                    mod_tags.append(url_tag)
+            else:
+                mod_tags.append(tag)
+
+        metadata["tags"] = mod_tags
+        return metadata
 
     def read(self, source_path):
         """
