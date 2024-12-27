@@ -1,11 +1,17 @@
+#!/usr/bin/env python
+
 import os
 import re
+import logging
 from itertools import chain
 from pathlib import Path
 
 from pelican import signals
-from pelican.plugins.yaml_metadata.yaml_metadata import YAMLMetadataReader
+from pelican.utils import pelican_open
+from pelican.plugins.yaml_metadata.yaml_metadata import YAMLMetadataReader, HEADER_RE
 from pelican.urlwrappers import Tag
+
+__log__ = logging.getLogger(__name__)
 
 ARTICLE_PATHS = {}
 FILE_PATHS = {}
@@ -27,6 +33,9 @@ link_re = re.compile(link)
 
 
 def get_file_and_linkname(match):
+    """
+    Get the filename and linkname from the match object
+    """
     group = match.groupdict()
     filename = group['filename'].strip()
     linkname = group['linkname'] if group['linkname'] else filename
@@ -38,6 +47,7 @@ class ObsidianMarkdownReader(YAMLMetadataReader):
     """
     Change the format of various links to the accepted case of pelican.
     """
+    enabled = YAMLMetadataReader.enabled
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,10 +108,19 @@ class ObsidianMarkdownReader(YAMLMetadataReader):
         Parse content and metadata of markdown files.
         Also changes the links to the acceptable format for pelican
         """
+        with pelican_open(source_path) as text:
+            m = HEADER_RE.fullmatch(text)
 
-        content, metadata = super().read(source_path)
-        content = self.replace_obsidian_links(content)
-        return content, metadata
+        if not m:
+            return super().read(source_path)
+
+        text = m.group("content")
+        content = self.replace_obsidian_links(text)
+
+        return (
+            self._md.reset().convert(content),
+            self._load_yaml_metadata(m.group("metadata"), source_path),
+        )
 
 
 def populate_files_and_articles(article_generator):
@@ -125,20 +144,33 @@ def populate_files_and_articles(article_generator):
         full_path, filename_w_ext = os.path.split(article)
         filename, ext = os.path.splitext(filename_w_ext)
         path = str(full_path).replace(str(base_path), '') + '/'
+        # For windows
+        if os.sep == '\\':
+            path = path.replace('\\', '/')
 
         # This work on both pages and posts/articles
         ARTICLE_PATHS[filename] = path
 
+    __log__.debug('Found %d articles', len(ARTICLE_PATHS))
+
     # Get list of all other relavant files
-    globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'svg', 'apkg', 'gif']]
+    globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'jpeg', 'svg', 'apkg', 'gif', 'webp', 'avif']]
     files = chain(*globs)
     for _file in files:
         full_path, filename_w_ext = os.path.split(_file)
         path = str(full_path).replace(str(base_path), '') + '/'
+        # For windows
+        if os.sep == '\\':
+            path = path.replace('\\', '/')
         FILE_PATHS[filename_w_ext] = path
+
+    __log__.debug('Found %d files', len(FILE_PATHS))
 
 
 def modify_generator(generator):
+    """
+    Modify the generator to use the ObsidianMarkdownReader
+    """
     populate_files_and_articles(generator)
     generator.readers.readers['md'] = ObsidianMarkdownReader(generator.settings)
 
@@ -153,6 +185,9 @@ def modify_metadata(article_generator, metadata):
 
 
 def register():
+    """
+    register with pelican.
+    """
     signals.article_generator_context.connect(modify_metadata)
     signals.article_generator_init.connect(modify_generator)
 
