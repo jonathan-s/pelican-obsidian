@@ -1,8 +1,8 @@
 name: Python Tests
 
 on:
-  pull_request:
-    branches: [ main ]  # or 'master' depending on your default branch name
+  push:
+    branches: [ "*" ]
 
 jobs:
   test:
