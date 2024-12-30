@@ -153,7 +153,7 @@ def populate_files_and_articles(article_generator):
 
     __log__.debug('Found %d articles', len(ARTICLE_PATHS))
 
-    # Get list of all other relavant files
+    # Get list of all other relevant files
     globs = [base_path.glob('**/*.{}'.format(ext)) for ext in ['png', 'jpg', 'jpeg', 'svg', 'apkg', 'gif', 'webp', 'avif']]
     files = chain(*globs)
     for _file in files:
